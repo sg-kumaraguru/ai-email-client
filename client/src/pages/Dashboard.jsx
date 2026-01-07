@@ -6,7 +6,6 @@ import EmailContent from "../components/EmailContent";
 import emailData from "../data/emails.json";
 
 const Dashboard = () => {
-
   // temporary data for design purpose
   const emails = emailData;
   const showList = true;
