@@ -12,21 +12,24 @@ const Dashboard = () => {
 
   return (
     <div className="h-screen flex flex-col bg-neutral-50">
+      {/* Top navigation (always visible) */}
       <TopBar />
 
-      <main className="flex flex-1 overflow-hidden">
-        <div className="hidden md:block">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar: desktop only */}
+        <aside className="hidden md:flex w-64 border-r border-neutral-200 bg-white">
           <SideBar />
-        </div>
+        </aside>
 
-        <section className="flex-1 overflow-y-auto bg-white">
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-2">
           {showList ? (
             <EmailList emails={emails} />
           ) : (
             <EmailContent email={emails[0]} />
           )}
-        </section>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
