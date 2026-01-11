@@ -10,3 +10,5 @@ __pycache__/
 # Editor / OS
 .vscode/
 .DS_Store
+
+.env

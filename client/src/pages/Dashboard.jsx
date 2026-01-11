@@ -12,16 +12,13 @@ const Dashboard = () => {
 
   return (
     <div className="h-screen flex flex-col bg-neutral-50">
-      {/* Top navigation (always visible) */}
       <TopBar />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar: desktop only */}
         <aside className="hidden md:flex w-64 border-r border-neutral-200 bg-white">
           <SideBar />
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-2">
           {showList ? (
             <EmailList emails={emails} />

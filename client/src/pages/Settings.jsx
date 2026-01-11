@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
@@ -12,12 +12,29 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
+import { logout } from "../api";
+
 const Settings = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleLogout = async () => {
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      navigate("/login", { replace: true });
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10 space-y-12">
-      {/* Header */}
       <header className="space-y-2">
         <NavLink
           to="/dashboard"
@@ -37,7 +54,6 @@ const Settings = () => {
         </div>
       </header>
 
-      {/* Profile */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-medium text-neutral-800">Profile</h2>
@@ -52,7 +68,6 @@ const Settings = () => {
         </div>
 
         <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
-          {/* Name */}
           <div className="flex items-start gap-3">
             <User size={18} className="text-neutral-500 mt-1" />
             <div className="flex-1">
@@ -69,7 +84,6 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* Email */}
           <div className="flex items-start gap-3">
             <Mail size={18} className="text-neutral-500 mt-1" />
             <div className="flex-1">
@@ -81,9 +95,7 @@ const Settings = () => {
                   className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-neutral-900"
                 />
               ) : (
-                <p className="text-sm text-neutral-900">
-                  john@example.com
-                </p>
+                <p className="text-sm text-neutral-900">john@example.com</p>
               )}
             </div>
           </div>
@@ -98,7 +110,6 @@ const Settings = () => {
         </div>
       </section>
 
-      {/* Gmail connection */}
       <section className="space-y-4">
         <h2 className="text-sm font-medium text-neutral-800">
           Connected Accounts
@@ -107,7 +118,6 @@ const Settings = () => {
         <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
           <p className="text-sm text-neutral-600">
             Connect your Gmail account to fetch and organize your emails.
-            Mailwise will request permission only to read and process your mail.
           </p>
 
           <NavLink
@@ -120,20 +130,18 @@ const Settings = () => {
         </div>
       </section>
 
-      {/* Danger zone */}
       <section className="space-y-4">
-        <h2 className="text-sm font-medium text-neutral-800">
-          Danger zone
-        </h2>
+        <h2 className="text-sm font-medium text-neutral-800">Danger zone</h2>
 
         <div className="rounded-lg border border-red-200 bg-white p-4 space-y-2">
-          <NavLink
-            to="/logout"
-            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-neutral-900 hover:bg-neutral-100 transition"
+          <button
+            onClick={handleLogout}
+            disabled={loading}
+            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-neutral-900 hover:bg-neutral-100 transition disabled:opacity-50"
           >
             <LogOut size={16} />
-            Log out
-          </NavLink>
+            {loading ? "Logging out…" : "Log out"}
+          </button>
 
           <NavLink
             to="/delete-account"

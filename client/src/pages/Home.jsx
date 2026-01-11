@@ -4,7 +4,6 @@ import { NavLink } from "react-router-dom";
 const Home = () => {
   return (
     <div className="bg-gray-50">
-      {/* Navbar */}
       <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <NavLink to="/" className="text-2xl font-semibold tracking-tight">
           Mailwise
@@ -18,9 +17,7 @@ const Home = () => {
         </NavLink>
       </nav>
 
-      {/* Hero */}
       <main className="max-w-7xl mx-auto px-6 min-h-[85vh] grid md:grid-cols-2 items-center gap-12">
-        {/* Text */}
         <div className="space-y-6">
           <h1 className="text-gray-950 text-4xl md:text-5xl font-bold leading-tight">
             Email, but smarter.
@@ -41,9 +38,8 @@ const Home = () => {
           </NavLink>
         </div>
 
-        {/* Visual placeholder */}
         <div className="hidden md:flex justify-center">
-          <div className="w-full max-w-md h-80 rounded-xl bg-gradient-to-br from-gray-200 to-gray-100 shadow-inner" />
+          <div className="w-full max-w-md h-80 rounded-xl bg-linear-to-br from-gray-200 to-gray-100 shadow-inner" />
         </div>
       </main>
     </div>
