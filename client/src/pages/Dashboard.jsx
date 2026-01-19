@@ -3,16 +3,21 @@ import SideBar from "../components/SideBar";
 import EmailList from "../components/EmailList";
 import EmailContent from "../components/EmailContent";
 
+import { useAuth } from "../contexts/AuthContext";
+
+
 import emailData from "../data/emails.json";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+
   // temporary data for design purpose
   const emails = emailData;
   const showList = true;
 
   return (
     <div className="h-screen flex flex-col bg-neutral-50">
-      <TopBar />
+      <TopBar username={user.name}/>
 
       <div className="flex flex-1 overflow-hidden">
         <aside className="hidden md:flex w-64 border-r border-neutral-200 bg-white">

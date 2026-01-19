@@ -1,22 +1,8 @@
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-
-from sqlalchemy import (
-    create_engine,
-    Column,
-    Integer,
-    String,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    UniqueConstraint,
-)
-from sqlalchemy.orm import (
-    sessionmaker,
-    declarative_base,
-    relationship,
-)
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 
 load_dotenv()
 
@@ -26,12 +12,10 @@ if not DATABASE_URL:
 
 engine = create_engine(DATABASE_URL, future=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-
 Base = declarative_base()
 
 
 # ---------- DB session dependency ----------
-
 def get_db():
     db = SessionLocal()
     try:
@@ -40,8 +24,7 @@ def get_db():
         db.close()
 
 
-# ---------- User (app identity) ----------
-
+# ---------- User ----------
 class User(Base):
     __tablename__ = "users"
 
@@ -58,9 +41,11 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    def __repr__(self):
+        return f"<User(id={self.id}, email={self.email})>"
 
-# ---------- Gmail account (external identity) ----------
 
+# ---------- Gmail account ----------
 class GmailAccount(Base):
     __tablename__ = "gmail_accounts"
 
@@ -70,7 +55,7 @@ class GmailAccount(Base):
     connected_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="gmail_accounts")
-    token = relationship(
+    gmail_token = relationship(
         "GmailToken",
         back_populates="gmail_account",
         uselist=False,
@@ -81,9 +66,11 @@ class GmailAccount(Base):
         UniqueConstraint("user_id", "google_email", name="uq_user_gmail"),
     )
 
+    def __repr__(self):
+        return f"<GmailAccount(id={self.id}, email={self.google_email})>"
+
 
 # ---------- Gmail OAuth tokens ----------
-
 class GmailToken(Base):
     __tablename__ = "gmail_tokens"
 
@@ -96,5 +83,8 @@ class GmailToken(Base):
     refresh_token = Column(String, nullable=False)
     expires_at = Column(DateTime, nullable=False)
 
-    gmail_account = relationship("GmailAccount", back_populates="token")
+    gmail_account = relationship("GmailAccount", back_populates="gmail_token")
+
+    def __repr__(self):
+        return f"<GmailToken(gmail_account_id={self.gmail_account_id})>"
 

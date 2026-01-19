@@ -44,10 +44,6 @@ export async function getMe() {
 
 // ------------------ Gmail ------------------
 
-/**
- * Start Gmail OAuth flow.
- * Returns: { auth_url: "https://..." }
- */
 export async function connectGmail() {
   const res = await fetch(`${API_URL}/gmail/connect`, {
     method: "POST",
@@ -58,9 +54,6 @@ export async function connectGmail() {
   return res.json();
 }
 
-/**
- * Disconnect / revoke Gmail access
- */
 export async function disconnectGmail() {
   const res = await fetch(`${API_URL}/gmail/disconnect`, {
     method: "POST",
@@ -71,10 +64,6 @@ export async function disconnectGmail() {
   return res.json();
 }
 
-/**
- * Check if user has Gmail connected
- * Returns: { connected: true/false, email: "..." }
- */
 export async function fetchGmailStatus() {
   const res = await fetch(`${API_URL}/gmail/status`, {
     credentials: "include",
@@ -83,4 +72,21 @@ export async function fetchGmailStatus() {
   if (!res.ok) throw new Error("Failed to fetch Gmail status");
   return res.json();
 }
+
+export async function updateUser(payload) {
+  const res = await fetch(`${API_URL}/update-user`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Failed to update user");
+  }
+
+  return res.json();
+}
+
 

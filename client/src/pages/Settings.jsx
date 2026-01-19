@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   User,
@@ -7,26 +7,30 @@ import {
   Save,
   Lock,
   LogOut,
-  Trash2,
   MailCheck,
   XCircle,
   ArrowLeft,
 } from "lucide-react";
-
+import { useAuth } from "../contexts/AuthContext";
 import { logout, fetchGmailStatus, connectGmail, disconnectGmail } from "../api";
 
 const Settings = () => {
+  const { user, updateUser } = useAuth();
+  const [formData, setFormData] = useState({ name: "", email: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [gmailConnected, setGmailConnected] = useState(false);
   const [gmailEmail, setGmailEmail] = useState("");
   const navigate = useNavigate();
 
-  // Fetch Gmail connection status on mount
+  useEffect(() => {
+    if (user) setFormData({ name: user.name, email: user.email });
+  }, [user]);
+
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await fetchGmailStatus(); // returns { connected: true/false, email: "..." }
+        const res = await fetchGmailStatus();
         setGmailConnected(res.connected);
         if (res.connected) setGmailEmail(res.email);
       } catch (err) {
@@ -41,10 +45,8 @@ const Settings = () => {
     setLoading(true);
     try {
       await logout();
-    } catch (err) {
-      console.error("Logout failed", err);
-    } finally {
       navigate("/login", { replace: true });
+    } finally {
       setLoading(false);
     }
   };
@@ -52,8 +54,7 @@ const Settings = () => {
   const handleConnectGmail = async () => {
     setLoading(true);
     try {
-      const res = await connectGmail(); // { auth_url: "https://..." }
-      // redirect user to Google consent screen
+      const res = await connectGmail();
       window.location.href = res.auth_url;
     } catch (err) {
       console.error("Failed to start Gmail connect", err);
@@ -66,7 +67,7 @@ const Settings = () => {
     if (!gmailConnected) return;
     setLoading(true);
     try {
-      await disconnectGmail(); // revoke tokens
+      await disconnectGmail();
       setGmailConnected(false);
       setGmailEmail("");
     } catch (err) {
@@ -75,6 +76,22 @@ const Settings = () => {
       setLoading(false);
     }
   };
+
+  const handleSaveProfile = async () => {
+    if (!formData.name || !formData.email) return;
+    setIsEditing(false);
+    setLoading(true);
+    try {
+      await updateUser(formData); 
+    } catch (err) {
+      console.error("Failed to update profile", err);
+      setIsEditing(true); // revert to edit mode if failed
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!user) return null; 
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10 space-y-12">
@@ -87,7 +104,6 @@ const Settings = () => {
           <ArrowLeft size={16} />
           Back to dashboard
         </NavLink>
-
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900">Account Settings</h1>
           <p className="text-sm text-neutral-500 mt-1">
@@ -100,9 +116,8 @@ const Settings = () => {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-medium text-neutral-800">Profile</h2>
-
           <button
-            onClick={() => setIsEditing((v) => !v)}
+            onClick={isEditing ? handleSaveProfile : () => setIsEditing(true)}
             className="flex items-center gap-2 text-sm text-neutral-700 hover:text-neutral-900"
           >
             {isEditing ? <Save size={16} /> : <Pencil size={16} />}
@@ -118,11 +133,12 @@ const Settings = () => {
               {isEditing ? (
                 <input
                   type="text"
-                  defaultValue="John Doe"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-neutral-900"
                 />
               ) : (
-                <p className="text-sm text-neutral-900">John Doe</p>
+                <p className="text-sm text-neutral-900">{user.name}</p>
               )}
             </div>
           </div>
@@ -134,11 +150,12 @@ const Settings = () => {
               {isEditing ? (
                 <input
                   type="email"
-                  defaultValue="john@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-neutral-900"
                 />
               ) : (
-                <p className="text-sm text-neutral-900">john@example.com</p>
+                <p className="text-sm text-neutral-900">{user.email}</p>
               )}
             </div>
           </div>
@@ -156,7 +173,6 @@ const Settings = () => {
       {/* Connected Accounts */}
       <section className="space-y-4">
         <h2 className="text-sm font-medium text-neutral-800">Connected Accounts</h2>
-
         <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
           {gmailConnected ? (
             <div className="flex items-center justify-between">
@@ -191,7 +207,6 @@ const Settings = () => {
       {/* Danger Zone */}
       <section className="space-y-4">
         <h2 className="text-sm font-medium text-neutral-800">Danger zone</h2>
-
         <div className="rounded-lg border border-red-200 bg-white p-4 space-y-2">
           <button
             onClick={handleLogout}
@@ -201,14 +216,6 @@ const Settings = () => {
             <LogOut size={16} />
             {loading ? "Logging out…" : "Log out"}
           </button>
-
-          <NavLink
-            to="/delete-account"
-            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 transition"
-          >
-            <Trash2 size={16} />
-            Delete account
-          </NavLink>
         </div>
       </section>
     </div>

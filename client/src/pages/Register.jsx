@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, ArrowLeft } from "lucide-react";
 import { isValidEmail, isValidPassword } from "../utils/validation";
 import { register as registerAPI } from "../api";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../contexts/AuthContext";
 
 const Register = () => {
   const navigate = useNavigate();
